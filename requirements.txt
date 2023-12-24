@@ -1,0 +1,7 @@
+matplotlib
+seaborn
+tk
+pillow
+numpy
+pandas
+pyqt5
