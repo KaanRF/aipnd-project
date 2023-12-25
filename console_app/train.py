@@ -1,8 +1,9 @@
 import argparse
+import sys
+
 from dataset_loader import DataLoader
 from model_helper import ModelHelper
 from utility import check_pth_file
-import sys
 
 # Define command line arguments
 parser = argparse.ArgumentParser(description='Train a new network on a dataset')
@@ -38,7 +39,6 @@ if check_pth_file(args.save_dir, args.arch) is not None:
         sys.exit()
     if answer == 'c':
         print("Continue with new training")
-
 
 # Load the dataset with given path
 dataset_loader = DataLoader(args.data_dir)

@@ -1,8 +1,5 @@
 import torch
-from torch import nn
-from torch import optim
-import torch.nn.functional as F
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
 
 
 class DataLoader:
@@ -38,10 +35,9 @@ class DataLoader:
         return train_datasets, test_datasets, valid_datasets
 
     def get_loaders(self):
-        train_loader = torch.utils.data.DataLoader(self.train_datasets, batch_size=64, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(self.test_datasets, batch_size=64)
-        valid_loader = torch.utils.data.DataLoader(self.valid_datasets, batch_size=64)
+        train_datasets, test_datasets, valid_datasets = self.get_datasets()
+        train_loader = torch.utils.data.DataLoader(train_datasets, batch_size=64, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(test_datasets, batch_size=64)
+        valid_loader = torch.utils.data.DataLoader(valid_datasets, batch_size=64)
 
         return train_loader, test_loader, valid_loader
-
-

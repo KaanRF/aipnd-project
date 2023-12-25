@@ -1,5 +1,5 @@
-from torchvision import transforms
 from PIL import Image
+from torchvision import transforms
 
 
 class ImagePreprocessor:
@@ -9,12 +9,11 @@ class ImagePreprocessor:
         image = Image.open(image_path)
 
         # Define the image transformation
-        image_transformation = transforms.Compose([
-            transforms.Resize(255),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        image_transformation = transforms.Compose([transforms.Resize(255),
+                                                   transforms.CenterCrop(224),
+                                                   transforms.ToTensor(),
+                                                   transforms.Normalize([0.485, 0.456, 0.406],
+                                                                        [0.229, 0.224, 0.225])])
 
         self._preprocessed_image = image_transformation(image)
 

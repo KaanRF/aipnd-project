@@ -1,9 +1,10 @@
+import logging
+import time
+
 import torch
 from torch import nn
 from torch import optim
 from torchvision import models
-import logging
-import time
 
 
 class ModelHelper:
@@ -20,6 +21,9 @@ class ModelHelper:
         elif self.arch == 'resnet':
             self._model = models.resnet50(pretrained=True)
 
+        for param in self._model.parameters():
+            param.requires_grad = False
+
         # Build a feed-forward network
         self._model.classifier = nn.Sequential(nn.Linear(25088, self.hidden_units),
                                                nn.ReLU(),
@@ -30,14 +34,15 @@ class ModelHelper:
                                                nn.Linear(256, 128),
                                                nn.LogSoftmax(dim=1))
 
-    def _freezer_paratmeter(self):
-        for param in self._model.parameters():
-            param.requires_grad = False
+        print(self._model)
 
     def _get_available_device(self, is_gpu):
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         if is_gpu and device == "cpu":
             logging.warning("GPU is requested to be used, but it is not available on your system.")
+
+        if is_gpu is not True:
+            device = "cpu"
 
         logging.warning("Using device is {}".format(device))
 
@@ -103,8 +108,6 @@ class ModelHelper:
         return self._model
 
     def train_model(self, train_loader, valid_loader, is_gpu, num_of_epochs, learn_rate=0.003):
-        self._freezer_paratmeter()
-
         self._model.to(self._get_available_device(is_gpu))
 
         self._run_train_model(train_loader, valid_loader, num_of_epochs, learn_rate, is_gpu)
@@ -114,7 +117,6 @@ class ModelHelper:
         test_accuracy = 0
         device = self._get_available_device(is_gpu)
         criterion = self._get_criterion()
-        criterion = nn.NLLLoss()
 
         test_start_time = time.time()
 
@@ -151,13 +153,11 @@ class ModelHelper:
             'model_state_dict': self._model.state_dict(),
             'class_to_idx': train_dataset.class_to_idx,
             'epochs': num_of_epochs,
-            'optimizer_state_dict': self._get_optimizer().state_dict(),
+            'optimizer_state_dict': self._get_optimizer(learn_rate).state_dict(),
             'architecture': self.arch,
             'hidden_units': self.hidden_units,
         }
 
         checkpoint_file = self.arch + '_' + 'checkpoint.pth'
         torch.save(checkpoint, checkpoint_save_path + '/' + checkpoint_file)
-
-    def load_checkpoint(self, checkpoint_save_path):
-        return torch.load(checkpoint_save_path)
+        print("Saved checkpoint file: {}".format(checkpoint_save_path + '/' + checkpoint_file))

@@ -1,7 +1,5 @@
 import os
-import sys
 
-import keyboard
 
 def check_pth_file(directory, arch):
     # Get the list of files in the directory
@@ -25,6 +23,7 @@ def check_pth_file(directory, arch):
     # If no .pth file is found, return None
     return None
 
+
 def is_any_checkpoint_file_exist(directory):
     # Get the list of files in the directory
     # Decided to keep all checkpoint under the console_app directory
@@ -44,5 +43,3 @@ def is_any_checkpoint_file_exist(directory):
 
     # If no .pth file is found, return None
     return None
-
-
