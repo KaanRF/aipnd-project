@@ -3,7 +3,6 @@ from dataset_loader import DataLoader
 from model_helper import ModelHelper
 from utility import check_pth_file
 import sys
-import keyboard
 
 # Define command line arguments
 parser = argparse.ArgumentParser(description='Train a new network on a dataset')

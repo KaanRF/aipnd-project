@@ -158,3 +158,6 @@ class ModelHelper:
 
         checkpoint_file = self.arch + '_' + 'checkpoint.pth'
         torch.save(checkpoint, checkpoint_save_path + '/' + checkpoint_file)
+
+    def load_checkpoint(self, checkpoint_save_path):
+        return torch.load(checkpoint_save_path)
