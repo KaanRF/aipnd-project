@@ -106,4 +106,6 @@ ENV/
 ai_project
 flowers/
 *tar.gz
+console_app/.idea
+console_app/checkpoints/*.pth
 
