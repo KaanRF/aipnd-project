@@ -42,7 +42,7 @@ class ModelHelper:
             logging.warning("GPU is requested to be used, but it is not available on your system.")
 
         if is_gpu is not True:
-            device = "cpu"
+            device = torch.device("cpu")
 
         logging.warning("Using device is {}".format(device))
 

@@ -107,5 +107,5 @@ ai_project
 flowers/
 *tar.gz
 console_app/.idea
-checkpoints/
+*pth
 
