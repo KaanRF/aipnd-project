@@ -13,19 +13,23 @@ class ModelHelper:
         self._model = None
         self.arch = arch
         self.hidden_units = hidden_units
+        in_features = None
 
         if self.arch == 'vgg19':
             self._model = models.vgg19(pretrained=True)
+            in_features = 25088
         elif self.arch == 'alexnet':
             self._model = models.alexnet(pretrained=True)
+            in_features = 9216
         elif self.arch == 'resnet':
             self._model = models.resnet50(pretrained=True)
+            in_features = 2048
 
         for param in self._model.parameters():
             param.requires_grad = False
 
         # Build a feed-forward network
-        self._model.classifier = nn.Sequential(nn.Linear(25088, self.hidden_units),
+        self._model.classifier = nn.Sequential(nn.Linear(in_features, self.hidden_units),
                                                nn.ReLU(),
                                                nn.Dropout(p=0.2),
                                                nn.Linear(self.hidden_units, 256),
@@ -64,6 +68,7 @@ class ModelHelper:
         criterion = self._get_criterion()
 
         for epoch in range(num_of_epochs):
+            total_train_loss = 0
             for inputs, labels in train_loader:
                 steps += 1
                 # Move input and label tensors to the default device
@@ -101,7 +106,6 @@ class ModelHelper:
                           f"Total validation loss: {total_valid_loss / len(valid_loader):.3f}.. "
                           f"Validation accuracy: {valid_accuracy / len(valid_loader):.3f}.. "
                           f"Device = {device}; Passed time since start : {(time.time() - train_start_time):.2f} seconds")
-                    total_train_loss = 0
                     self._model.train()
 
     def get_model(self):
@@ -130,7 +134,7 @@ class ModelHelper:
 
                 ps = torch.exp(log_ps)
                 top_p, top_class = ps.topk(1, dim=1)
-                equals = top_class == labels.view(*top_class.shape)
+                equals = (top_class == labels.view(*top_class.shape))
                 test_accuracy += torch.mean(equals.type(torch.FloatTensor))
 
         # Set back model to train mode.
