@@ -1,4 +1,5 @@
 import logging
+import sys
 import time
 
 import torch
@@ -13,32 +14,8 @@ class ModelHelper:
         self._model = None
         self.arch = arch
         self.hidden_units = hidden_units
-        in_features = None
 
-        if self.arch == 'vgg19':
-            self._model = models.vgg19(pretrained=True)
-            in_features = 25088
-        elif self.arch == 'alexnet':
-            self._model = models.alexnet(pretrained=True)
-            in_features = 9216
-        elif self.arch == 'resnet':
-            self._model = models.resnet50(pretrained=True)
-            in_features = 2048
-
-        for param in self._model.parameters():
-            param.requires_grad = False
-
-        # Build a feed-forward network
-        self._model.classifier = nn.Sequential(nn.Linear(in_features, self.hidden_units),
-                                               nn.ReLU(),
-                                               nn.Dropout(p=0.2),
-                                               nn.Linear(self.hidden_units, 256),
-                                               nn.ReLU(),
-                                               nn.Dropout(p=0.2),
-                                               nn.Linear(256, 128),
-                                               nn.LogSoftmax(dim=1))
-
-        print(self._model)
+        self.create_model(self.arch, self.hidden_units)
 
     def _get_available_device(self, is_gpu):
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -107,6 +84,42 @@ class ModelHelper:
                           f"Validation accuracy: {valid_accuracy / len(valid_loader):.3f}.. "
                           f"Device = {device}; Passed time since start : {(time.time() - train_start_time):.2f} seconds")
                     self._model.train()
+
+    def create_model(self, arch, hidden_units):
+        # Reset the model if re-creation is needed.
+        self._model = None
+        self.arch = arch
+        self.hidden_units = hidden_units
+        in_features = None
+
+        if self.arch == 'vgg19':
+            self._model = models.vgg19(pretrained=True)
+            in_features = 25088
+        elif self.arch == 'alexnet':
+            self._model = models.alexnet(pretrained=True)
+            in_features = 9216
+        elif self.arch == 'resnet':
+            self._model = models.resnet50(pretrained=True)
+            in_features = 2048
+
+        if self._model is None:
+            logging.warning("Invalid 'arch' has been selected, stopping application...")
+            sys.exit()
+
+        for param in self._model.parameters():
+            param.requires_grad = False
+
+        # Build a feed-forward network
+        self._model.classifier = nn.Sequential(nn.Linear(in_features, self.hidden_units),
+                                               nn.ReLU(),
+                                               nn.Dropout(p=0.2),
+                                               nn.Linear(self.hidden_units, 256),
+                                               nn.ReLU(),
+                                               nn.Dropout(p=0.2),
+                                               nn.Linear(256, 128),
+                                               nn.LogSoftmax(dim=1))
+
+        print(self._model)
 
     def get_model(self):
         return self._model
